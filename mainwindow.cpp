@@ -213,7 +213,7 @@ void MainWindow::writeTable(const Matrix& matrix)
             throw std::invalid_argument("Every record in the file must have exactly three values.");
         for (int column = 0; column < kColumnCount; ++column)
             ui->tableWidget->setItem(row, column,
-                                     new QTableWidgetItem(QString::number(matrix[row][column], 'g', 17)));
+                                     new QTableWidgetItem(QString::number(matrix[row][column], 'g', 12)));
     }
 }
 
@@ -311,9 +311,11 @@ void MainWindow::plotChart(const Matrix& matrix, double a_coeff, double cr_at_0)
     xmax += xMargin;
 
     // add points and line
+    scatter_series_->clear();
     for (const auto &p : points) {
         scatter_series_->append(p);
     }
+    line_series_->clear();
     double y_line_max = corrected_cps(cr_at_0, a_coeff, xmax);
     line_series_->append(0, cr_at_0);
     line_series_->append(xmax, y_line_max);
