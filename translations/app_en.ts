@@ -140,28 +140,28 @@
         <translation>Calculation error</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="282"/>
+        <location filename="../mainwindow.cpp" line="291"/>
         <source>Highload coefficient calculator</source>
         <translation>Highload coefficient calculator</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="283"/>
+        <location filename="../mainwindow.cpp" line="292"/>
         <source>Highload coefficient calculator calculates &apos;A&apos; coefficient for the live-time correction of highloaded spectra in LSRM SpectraLine</source>
         <translation>Highload coefficient calculator calculates &apos;A&apos; coefficient for the live-time correction of highloaded spectra in LSRM SpectraLine</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="289"/>
-        <location filename="../mainwindow.cpp" line="293"/>
+        <location filename="../mainwindow.cpp" line="298"/>
+        <location filename="../mainwindow.cpp" line="302"/>
         <source>Plot points</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="289"/>
+        <location filename="../mainwindow.cpp" line="298"/>
         <source>Empty input data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="293"/>
+        <location filename="../mainwindow.cpp" line="302"/>
         <source>Invalid input data</source>
         <translation type="unfinished"></translation>
     </message>

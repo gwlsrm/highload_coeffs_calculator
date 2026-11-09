@@ -115,28 +115,28 @@
         <translation>Ошибка расчёта</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="282"/>
+        <location filename="../mainwindow.cpp" line="291"/>
         <source>Highload coefficient calculator</source>
         <translation>Калькулятор коэффициента высокой загрузки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="283"/>
+        <location filename="../mainwindow.cpp" line="292"/>
         <source>Highload coefficient calculator calculates &apos;A&apos; coefficient for the live-time correction of highloaded spectra in LSRM SpectraLine</source>
         <translation>Калькулятор коэффициента высокой загрузки позволяет рассчитать коэффициент &apos;A&apos; для поправки живого времени спектра с высокой загрузкой в LSRM SpectraLine</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="289"/>
-        <location filename="../mainwindow.cpp" line="293"/>
+        <location filename="../mainwindow.cpp" line="298"/>
+        <location filename="../mainwindow.cpp" line="302"/>
         <source>Plot points</source>
         <translation>Отображение точек</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="289"/>
+        <location filename="../mainwindow.cpp" line="298"/>
         <source>Empty input data</source>
         <translation>Пустой набор данных</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="293"/>
+        <location filename="../mainwindow.cpp" line="302"/>
         <source>Invalid input data</source>
         <translation>Невалидные данные</translation>
     </message>

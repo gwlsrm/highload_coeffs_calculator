@@ -186,7 +186,16 @@ Matrix MainWindow::readTable() const
         for (int column = 0; column < kColumnCount; ++column) {
             const QTableWidgetItem* item = ui->tableWidget->item(row, column);
             const QString text = item == nullptr ? QString() : item->text().trimmed();
-            if (text.isEmpty()) continue;
+            if (text.isEmpty()) {
+                if (column == 0) break;
+                if (column == 1) {
+                    throw std::invalid_argument("column #2 must contain value");
+                }
+                if (column == 2) {
+                    values.push_back(0.0);
+                    continue;
+                }
+            }
             is_emtpy_row = false;
             bool isNumber = false;
             const double value = text.toDouble(&isNumber);
