@@ -1,15 +1,20 @@
 #include "highload_coeffs_calculator.h"
-#include <Eigen/Dense>
 
-#include <stdexcept>
-#include <iostream>
+#include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <stdexcept>
 
+#include <Eigen/Dense>
 
 namespace {
 
 void solveEquation(const Eigen::MatrixXd& A, const Eigen::VectorXd& b, const Eigen::VectorXd& w,
-                   Eigen::VectorXd& x, Eigen::VectorXd& dx) {
+                   bool uncertaintiesKnown, Eigen::VectorXd& x, Eigen::MatrixXd& covX)
+{
+    const Eigen::Index n = A.rows();
+    const Eigen::Index p = A.cols();
+
     Eigen::MatrixXd Aw = A;
     Eigen::VectorXd bw = b;
 
@@ -19,14 +24,39 @@ void solveEquation(const Eigen::MatrixXd& A, const Eigen::VectorXd& b, const Eig
         bw(i)     *= sqrtWeight;
     }
 
+    // get qr decomposition
     auto qr = Aw.colPivHouseholderQr();
-    if (qr.rank() < 2) {
+    if (qr.rank() < p) {
         throw std::runtime_error("Columns A are linearly dependent");
     }
 
+    // solve qr decomposition
     x = qr.solve(bw);
-    Eigen::Matrix2d covX = (Aw.transpose() * Aw).inverse();
-    dx = covX.diagonal().array().sqrt().matrix();
+
+    // compute covariance matrix using qr decomposition
+    // it is the same as covX = (Aw.transpose() * Aw).inverse();
+    const Eigen::MatrixXd B =
+        qr.solve(Eigen::MatrixXd::Identity(n, n));
+    covX = B * B.transpose();
+
+    // degree of freedom
+    const Eigen::Index dof = n - p;
+
+    // using scatter (residuals) to calculate covariance matrix
+    if (dof > 0) {
+        const Eigen::VectorXd weightedResidual = bw - Aw * x;
+        // scale from residuals (scatter)
+        const double residualScale =
+            weightedResidual.squaredNorm() / static_cast<double>(dof);
+
+        // correct on residuals only if residuals are greater than unc.
+        const double covarianceScale =
+            uncertaintiesKnown
+                ? std::max(1.0, residualScale)
+                : residualScale;
+
+        covX *= covarianceScale;
+    }
 }
 
 }
@@ -65,36 +95,40 @@ CalculationResults calculateHighLoadCoeffs(const Matrix& matrix) {
     A.col(0) = Eigen::VectorXd::Ones(N);
     A.col(1) = -L;
 
-    // if all dB == 0, set them 1
-    bool has_unc = true;
-    if ((dB.array() == 0.0).all()) {
-        dB.fill(1.0);
-        if (N == 2) has_unc = false;
-    }
-
-    // checks
-    if ((dB.array() <= 0.0).any())
-        throw std::invalid_argument("All unc. values must be positive");
-
     // weights w_i = 1 / sigma_i^2
-    const Eigen::ArrayXd w = 1.0 / dB.array().square();
+    // if all dB == 0, set them to 1
+    const bool uncertaintiesKnown = !(dB.array() == 0.0).all();
+    Eigen::VectorXd w(N);
+    if (uncertaintiesKnown) {
+        if (!dB.allFinite() || (dB.array() <= 0.0).any()) {
+            throw std::invalid_argument("All measurement uncertainties must be positive");
+        }
+        w = 1.0 / dB.array().square();
+    } else {
+        w.setOnes();
+    }
 
     // solve equation
     Eigen::VectorXd x;
-    Eigen::VectorXd dx;
-    solveEquation(A, b, w, x, dx);
+    Eigen::MatrixXd covX;
+    solveEquation(A, b, w, uncertaintiesKnown, x, covX);
 
-    double s0 = x(0);  // count rate at zero load
+    // Ca -- coefficient A
+    const double s0 = x(0);  // count rate at zero load
     if (s0 <= 0.0) {
         throw std::runtime_error("cannot solve the equation, check input data");
     }
-    double Ca = x(1) / s0;  // x(1) = Ca * s0
-    double dCa = dx(1) / s0;
-    double chi2 = (b - A * x).array().square().sum() / w.sum();
+    const double Ca = x(1) / s0;  // x(1) = Ca * s0
 
-    if (!has_unc) {
-        dCa = 0.0;
-    }
+    // dCa -- uncertainty of coefficient A
+    Eigen::Vector2d gradient;
+    gradient << -x(1) / (s0 * s0), 1.0 / s0;
+    const double varCa = gradient.dot(covX * gradient);
+    const double dCa = std::sqrt(std::max(0.0, varCa));
+
+    const Eigen::VectorXd residual = b - A * x;
+    // TODO: actually it is not chi2, find a correct name
+    const double chi2 = (w.array() * residual.array().square()).sum() / w.sum();
 
     return {Ca, dCa, chi2, s0};
 }

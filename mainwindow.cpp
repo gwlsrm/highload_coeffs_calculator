@@ -161,7 +161,7 @@ void MainWindow::calculateCoefficients()
         Matrix calculationMatrix;
         calculationMatrix.reserve(tableMatrix.size());
         for (const std::vector<double>& row : tableMatrix) {
-            calculationMatrix.push_back({row[0], row[1], row[2]});
+            calculationMatrix.push_back({row[0], row[1], row[2] / 100.0 * row[1]});
         }
 
         const CalculationResults results = calculateHighLoadCoeffs(calculationMatrix);
